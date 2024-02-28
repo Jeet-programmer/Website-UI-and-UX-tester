@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Score Details</title>
+ <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      margin: 0;
+      padding: 20px; /* Added padding to the body */
+    }
+
+    .container2 {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 30px; /* Increased padding for container */
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 30px; /* Increased padding for container */
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .score {
+      margin-bottom: 20px;
+      padding: 15px; /* Added padding for score section */
+      border-radius: 5px;
+      background-color: #f5f5f5; /* Light background for score section */
+    }
+
+    .score label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .meter {
+      height: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px; /* Adjusted border radius for semicircle effect */
+      overflow: hidden;
+      background-color: #f5f5f5;
+      margin-bottom: 10px;
+    }
+
+    .meter > span {
+      display: block;
+      height: 100%;
+      background-color: #4caf50;
+      transition: width 0.5s ease;
+      border-radius: 10px 0 0 10px; /* Adjusted border radius for semicircle effect */
+    }
+
+    .score-value {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #333;
+      font-weight: bold;
+    }
+
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+      margin-top: 20px;
+      display: none; /* Initially hide the loader */
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Style the form */
+    #linkForm {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    #link {
+      flex: 1;
+      margin-right: 10px;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+
+    #link:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+
+    #submitBtn {
+      padding: 5px 10px;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    #submitBtn:hover {
+      background-color: #2980b9;
+    }
+
+    /* Style the score meter */
+    .meter {
+      background-color: #eee; /* Use a lighter background for the meter */
+      border-color: #ddd; /* Use a lighter border color for the meter */
+      position: relative; /* Added position relative for score value */
+    }
+
+    /* Style the labels for suggestions and remarks */
+    .score p {
+      margin-top: 5px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+    <div class="container2">
+  <form id="linkForm" method="get">
+        <input type="text" id="link" name="link" placeholder="Enter Link" required>
+        <button type="submit" id="submitBtn">Submit</button>
+    </form>
+    </div>
+      <div class="loader" id="loader"></div>
+
+  <div class="container" style="display:none;" id="scoreContainer">
+    <div class="score">
+      <label for="UI">UI Score:</label>
+      <div class="meter">
+        <span id="UI_meter"></span>
+        <span class="score-value" id="UI_score"></span>
+      </div>
+      <p>Remarks:</p>
+      <p id="UI_remark"></p>
+      <p>Suggestions:</p>
+      <p id="UI_suggestions"></p>
+    </div>
+    <div class="score">
+      <label for="UX">UX Score:</label>
+      <div class="meter">
+        <span id="UX_meter"></span>
+        <span class="score-value" id="UX_score"></span>
+      </div>
+      <p>Remarks:</p>
+      <p id="UX_remark"></p>
+      <p>Suggestions:</p>
+      <p id="UX_suggestions"></p>
+    </div>
+  </div>
+
+   <script>
+        // Function to make AJAX request
+        function fetchScores(link) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        // Update UI score and details
+                        updateScore(response.UI, response.UI_remark, response.UI_suggestions, 'UI');
+                        // Update UX score and details
+                        updateScore(response.UX, response.UX_remark, response.UX_suggestions, 'UX');
+                        // Show the score container and hide the loader
+                        document.getElementById('scoreContainer').style.display = 'block';
+                        document.getElementById('loader').style.display = 'none';
+                    } else {
+                        console.error('Error:', xhr.status);
+                    }
+                }
+            };
+            xhr.open('GET', '/get-score/?link=' + encodeURIComponent(link));
+            xhr.send();
+        }
+
+        // Function to update score, remark, and suggestions
+        function updateScore(score, remark, suggestions, elementId) {
+            document.getElementById(elementId + '_score').textContent = score;
+            document.getElementById(elementId + '_meter').style.width = (score * 10) + '%';
+            document.getElementById(elementId + '_remark').textContent = remark;
+            document.getElementById(elementId + '_suggestions').textContent = suggestions;
+        }
+
+        // Get the link parameter from the URL
+        document.getElementById('linkForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+            var linkValue = document.getElementById('link').value;
+            // Show the loader
+            document.getElementById('loader').style.display = 'block';
+            // Fetch scores
+            fetchScores(linkValue);
+        });
+    </script>
+
+</body>
+</html>

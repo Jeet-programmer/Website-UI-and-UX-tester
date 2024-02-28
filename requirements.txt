@@ -1,0 +1,4 @@
+selenium
+google-generativeai
+ipython
+flask
