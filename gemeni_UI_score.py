@@ -3,8 +3,11 @@ from IPython.display import Markdown
 import textwrap
 import PIL.Image
 import ast
-
-genai.configure(api_key="AIzaSyBGHWnbEC6sDR0BNfWdmMRDcBZeiemdeAg")
+import os
+from dotenv import load_dotenv
+load_dotenv()
+value = os.getenv('Gemeni')
+genai.configure(api_key=value)
 def to_markdown(text):
   text = text.replace('•', '  *')
   return Markdown(textwrap.indent(text, '> ', predicate=lambda _: True))

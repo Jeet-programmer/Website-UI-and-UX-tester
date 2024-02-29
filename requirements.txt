@@ -2,3 +2,5 @@ selenium
 google-generativeai
 ipython
 flask
+pillow
+python-dotenv

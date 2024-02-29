@@ -10,7 +10,7 @@ def links_to_screenshot(link):
     print("Taking screenshot...")
     chrome_options = Options()
     chrome_options.add_argument('--headless')  # Run in headless mode
-
+    chrome_options.add_argument("--disable-dev-shm-usage")
     # Initialize the WebDriver with Chrome options
     driver = webdriver.Chrome(options=chrome_options)
 
